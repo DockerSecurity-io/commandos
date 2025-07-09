@@ -51,6 +51,30 @@ On the repo, go to the directory `init` and run:
 docker init
 ```
 
+The interactive prompt will ask you questions:
+
+- ? What application platform does your project use? **Java**
+- ? What's the relative directory (with a leading .) for your app? **./src**
+- ? What version of Java do you want to use? **24**
+- ? What port does your server listen on? **8080**
+
+The command will create the necessary files. Go to `Dockerfile` and change the base images:
+
+- Line 12: 
+  + Change `FROM eclipse-temurin:24-jdk-jammy as deps` 
+  + to `FROM sapmachine:24-jdk-ubuntu-noble as deps`
+  + because, at the time of writing, the Eclipse Temurin image for Java 24 is not available.
+- Line 69:
+  + Change `FROM eclipse-temurin:24-jre-jammy AS final` 
+  + to `FROM sapmachine:24-jre-ubuntu-noble AS final`
+  + for the same reason.
+
+Then start the Docker Compose project:
+
+```bash
+docker compose up --build
+```
+
 ### Exercises
 
 - 1.1. Create a Dockerfile for a Java 24 project using Docker Init.
