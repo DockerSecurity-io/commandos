@@ -222,3 +222,105 @@ SBOM of image already cached, 208 packages indexed
 ### Exercises
 
 - 4.1. Here, the build command was super long. Try to create a Docker Bake file for the C++ example, and build the image using Docker Bake with SBOM attestations.
+
+## 5. Docker Scout
+
+_Requirement: This step requires the [SBOM Attestations](#4-sbom-attestations) step to be completed first._
+
+Docker Scout is a tool to analyze Docker images and check for vulnerabilities, misconfigurations, and other issues. It uses the SBOM attestations, when available, to provide more accurate results.
+
+Docker Scout is available on Docker Desktop, and as a CLI plugin for Docker CE.
+
+### Usage
+
+To check the vulnerabilities in the image, run:
+
+```bash
+docker scout cves aerabi/cpp-hello:with-build-stage
+```
+
+You can also check the vulnerabilities in the image using the Docker Desktop UI. Just go to the "Images" tab, select the image, and click on "Scout".
+
+There are also recommendations for the image, which you can check by running:
+
+```bash
+docker scout recommendations flask-server
+```
+
+### Exercises
+
+- 5.1. Try to fix the vulnerabilities in the Flask image using the recommendations from Docker Scout.
+
+## 6. Docker Debug
+
+_Requirement: This step requires the [Docker SBOM](#3-docker-sbom) step to be completed first._
+
+Docker Debug is a tool to debug Docker images and containers. It allows you to run a container with a debug shell, and inspect the image and the container.
+
+Docker Debug is a paid feature available on Docker Desktop.
+
+### Usage
+
+Docker Debug can be used to investigate images or containers, when `docker exec` is not enough. For example, you can use it to inspect a scratch image:
+
+```bash
+docker debug aerabi/cpp-hello:with-build-stage
+```
+
+### Exercises
+
+- 6.1. Use Docker Debug to inspect the C++ image.
+- 6.2. Use Docker Debug to inspect the Flask image.
+- 6.3. Run the Flask image and inspect it with Docker Debug.
+- 6.4. Install a tool like Vim using Docker Debug. The tools persist between different inspections. Try to inspect another container and check if the tool is still there.
+
+## 7. Docker Model Runner
+
+_Main article: [Run GenAI Models Locally with Docker Model Runner](https://dev.to/docker/run-genai-models-locally-with-docker-model-runner-5elb)_
+
+Docker Model Runner is a tool to run GenAI models locally using Docker. The feature is still in beta, but is available on Linux, macOS, and Windows.
+
+- Linux: Docker CE
+- macOS: Docker Desktop 4.40 or later
+- Windows: Docker Desktop 4.41 or later
+
+On Docker CE, you need to install the Docker Model Runner plugin:
+
+```bash
+sudo apt-get install docker-model-plugin
+```
+
+
+
+### Usage
+
+```bash
+docker model run ai/gemma3
+```
+
+To use Docker Model Runner for developing GenAI applications, you can pull the models, and they will become available locally. Whenever an application needs to use a model, it can use the local models.
+
+And example application is available here:
+
+```bash
+git clone https://github.com/aerabi/genai-app-demo
+cd genai-app-demo
+```
+
+Edit the file `backend.env` and make it match the following content:
+
+```dotenv
+BASE_URL: http://model-runner.docker.internal/engines/llama.cpp/v1/
+MODEL: ai/gemma3
+API_KEY: ${API_KEY:-dockermodelrunner}
+````
+
+Then, run the application:
+
+```bash
+docker compose up -d
+```
+
+### Exercises
+
+- 7.1. Docker Compose now supports the `model` service type ([learn more](https://docs.docker.com/ai/compose/models-and-compose/)). Try to adapt the Compose file in the repo to declare the model as a service.
