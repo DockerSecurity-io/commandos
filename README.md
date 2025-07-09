@@ -79,7 +79,7 @@ The application will be available at [http://localhost:8000](http://localhost:80
 
 ## 2. Docker Bake
 
-_Requirement: This step requires the Docker Init step to be completed first._
+_Requirement: This step requires the [Docker Init](#1-docker-init) step to be completed first._
 
 Docker Bake is to Docker Build, what Docker Compose is to Docker Run. It allows you to build multiple images at once, using a single command.
 
@@ -108,3 +108,117 @@ Also, there are probably some warnings about the Dockerfile.
 - 2.1. Try to fix the warnings in the Dockerfile.
 - 2.2. By changing the `docker-bake.hcl` file, try building for multiple platforms, e.g., `linux/amd64` and `linux/arm64`. 
 - 2.3. Try to build the image with a different Python version, e.g., `3.13.1` (the Python version is defined in the Dockerfile as a build argument, `PYTHON_VERSION`).
+
+## 3. Docker SBOM
+
+_Requirement: This step requires the [Docker Init](#1-docker-init) step to be completed first._
+
+In Docker Init step, we built an image with tag `flask-server:latest` when running `docker compose up --build`. Let's check the SBOM for this image.
+
+Docker SBOM is integrated into Docker Desktop, but is also available for Docker CE as a CLI plugin that you need to install separately.
+
+### Usage
+
+To check the SBOM for the image, run:
+
+```bash
+docker sbom flask-server:latest
+```
+
+The output will show the SBOM in a table format. Try to export it to a SPDX file:
+
+```bash
+docker sbom --format spdx-json flask-server:latest > sbom.spdx.json
+```
+
+If you investigate the file, you will see that it contains a list of all the packages used in the image, their versions, and the licenses. It's especially useful for compliance and security purposes.
+
+A more interesting example will be a C++ application.
+
+Go to the C++ example directory:
+
+```bash
+cd cpp
+```
+
+Then, build the image:
+
+```bash
+docker build -t cpp-hello .
+```
+
+Now, check the SBOM for the image:
+
+```bash
+docker sbom cpp-hello
+```
+
+It will say there are no packages in the image, because the image is built from a `FROM scratch` base image. But, in the build stage, we installed many packages, and a vulnerability in those packages can affect the final image.
+
+We'll get back to this later.
+
+### Exercises
+
+- 3.1. Try to create a Docker Bake file for the C++ example, and build the image using Docker Bake.
+- 3.2. Use `docker sbom --help` to check available formats for the SBOM output.
+
+## 4. SBOM Attestations
+
+_Requirement: This step requires the [Docker SBOM](#3-docker-sbom) step to be completed first._
+
+
+_Main article: [DockerDocs: Supply-Chain Security for C++ Images](https://docs.docker.com/guides/cpp/security/)_
+
+SBOM attestations are SBOMs generated for Docker images and uploaded with them to the registry.
+
+### Usage
+
+SBOM attestations are generated during the build and pushed to the registry automatically:
+
+```bash
+docker buildx build --sbom=true --push -t aerabi/cpp-hello .
+```
+
+Now, let's check the CVEs with Docker Scout (we will cover it in the next section):
+
+```bash
+docker scout cves aerabi/cpp-hello
+```
+
+It will say:
+
+```
+SBOM obtained from attestation, 0 packages found
+```
+
+The SBOM has no packages, because we built the image from a `FROM scratch` base image, and the build stage packages are not included in the SBOM. We can fix this by including the build stage packages in the SBOM.
+
+To do that, we need to add the following line to the beginning of the `Dockerfile`:
+
+```dockerfile
+ARG BUILDKIT_SBOM_SCAN_STAGE=true
+```
+
+This line goes before the `FROM` line, and it tells Docker to include the build stage packages in the SBOM.
+
+Now, rebuild the image with the new Dockerfile:
+
+```bash
+docker buildx build --sbom=true --push -t aerabi/cpp-hello:with-build-stage .
+```
+
+Now, check the SBOM attestations for the image again:
+
+```bash
+docker scout cves aerabi/cpp-hello:with-build-stage
+```
+
+It will say:
+
+```
+SBOM of image already cached, 208 packages indexed
+```
+
+### Exercises
+
+- 4.1. Here, the build command was super long. Try to create a Docker Bake file for the C++ example, and build the image using Docker Bake with SBOM attestations.
