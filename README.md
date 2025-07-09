@@ -79,3 +79,32 @@ The application will be available at [http://localhost:8000](http://localhost:80
 
 ## 2. Docker Bake
 
+_Requirement: This step requires the Docker Init step to be completed first._
+
+Docker Bake is to Docker Build, what Docker Compose is to Docker Run. It allows you to build multiple images at once, using a single command.
+
+Docker Bake is available on Docker CE and Docker Desktop, and is generally available.
+
+### Usage
+
+In the repo, go to the Flask example directory:
+
+```bash
+cd flask
+```
+
+Then, try to build the image using Docker Bake:
+
+```bash
+docker buildx bake
+```
+
+The command will build the image using the `docker-bake.hcl` file in the current directory. At the end, there is a Docker Desktop link shown in the output, with which you can see the build progress in the Docker Desktop UI.
+
+Also, there are probably some warnings about the Dockerfile.
+
+### Exercises
+
+- 2.1. Try to fix the warnings in the Dockerfile.
+- 2.2. By changing the `docker-bake.hcl` file, try building for multiple platforms, e.g., `linux/amd64` and `linux/arm64`. 
+- 2.3. Try to build the image with a different Python version, e.g., `3.13.1` (the Python version is defined in the Dockerfile as a build argument, `PYTHON_VERSION`).
