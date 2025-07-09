@@ -45,41 +45,37 @@ Docker Init is available on Docker Desktop 4.27 or later and is generally availa
 
 ### Usage
 
-On the repo, go to the directory `init` and run:
+On the repo, go to the Flask example directory:
+
+```bash
+cd flask
+```
+
+Then, run the Docker Init command:
 
 ```bash
 docker init
 ```
 
-The interactive prompt will ask you questions:
+The command will ask you 4 questions, accept the defaults:
 
-- ? What application platform does your project use? **Java**
-- ? What's the relative directory (with a leading .) for your app? **./src**
-- ? What version of Java do you want to use? **24**
-- ? What port does your server listen on? **8080**
+- ? What application platform does your project use? **Python**
+- ? What version of Python do you want to use? **3.13.2**
+- ? What port do you want your app to listen on? **8000**
+- ? What is the command you use to run your app? **gunicorn 'hello:app' --bind=0.0.0.0:8000**
 
-The command will create the necessary files. Go to `Dockerfile` and change the base images:
-
-- Line 12: 
-  + Change `FROM eclipse-temurin:24-jdk-jammy as deps` 
-  + to `FROM sapmachine:24-jdk-ubuntu-noble as deps`
-  + because, at the time of writing, the Eclipse Temurin image for Java 24 is not available.
-- Line 69:
-  + Change `FROM eclipse-temurin:24-jre-jammy AS final` 
-  + to `FROM sapmachine:24-jre-ubuntu-noble AS final`
-  + for the same reason.
-
-Then start the Docker Compose project:
+Then, start Docker Compose with build:
 
 ```bash
 docker compose up --build
 ```
 
+The application will be available at [http://localhost:8000](http://localhost:8000).
+
 ### Exercises
 
-- 1.1. Create a Dockerfile for a Java 24 project using Docker Init.
-- 1.2. Create a Dockerfile for a Python 3.12 project using Docker Init.
-- 1.3. Compare the Dockerfile created for the Java application with the one created for the Python application. What are the differences?
+- 1.1. If you want a more tricky example, try Dockerizing a Java 24 application using Docker Init. You can follow the instructions in the [JAVAPRO article](https://javapro.io/2025/07/03/how-to-containerize-a-java-application-securely/) that I published last week.
+- 1.2. Compare the Dockerfile created for the Java application with the one created for the Python application. What are the differences?
 
 ## 2. Docker Bake
 
