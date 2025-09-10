@@ -2,16 +2,16 @@
 
 This repository contains the source code and resources for the **10 Docker Commandos** workshop at JobRad in September 2025. The workshop will cover the following topics:
 
-- Docker Init
-- Docker Bake
-- Docker SBOM
-- SBOM attestations
-- Docker Scout
-- Docker Debug
-- Docker Model Runner
-- Ask Gordon
-- Docker's MCP catalog
-- CAgent
+- 1️⃣ [Docker Init](#1-docker-init)
+- 2️⃣ [Docker Bake](#2-docker-bake)
+- 3️⃣ [Docker SBOM](#3-docker-sbom)
+- 4️⃣ [SBOM Attestations](#4-sbom-attestations)
+- 5️⃣ [Docker Scout](#5-docker-scout)
+- 6️⃣ [Docker Debug](#6-docker-debug)
+- 7️⃣ [Docker Model Runner](#7-docker-model-runner)
+- 8️⃣ Ask Gordon
+- 9️⃣ [Docker MCP Toolkit](#9-docker-mcp-toolkit)
+- 🔟 [CAgent](#10-cagent)
 
 ## Installation
 
@@ -29,14 +29,16 @@ Installing the latest Docker Desktop will give you most of the commands. For mor
 - Docker Desktop latest version
 - Git
 - A Bash shell (e.g., Git Bash, WSL, or any Linux terminal)
+- A Docker Hub account (for pushing images)
 
 On Windows, you can install Git Bash.
 
 ## 1. Docker Init
 
-_Main article: [Dockerizing a Java 24 Project with Docker Init](https://dockerhour.com/dockerizing-a-java-24-project-with-docker-init-6f6465758c55)_
-
+_Main article: [Dockerizing a Java 24 Project with Docker Init](https://dockerhour.com/dockerizing-a-java-24-project-with-docker-init-6f6465758c55)_  
 _Main article: [JAVAPRO: How to Containerize a Java Application Securely](https://javapro.io/2025/07/03/how-to-containerize-a-java-application-securely/)_
+
+_In case you want to skip Docker Init, you can use the `flask-init` directory, which contains the files created by Docker Init._
 
 Docker Init is a command to initialize a Docker project with a Dockerfile and other necessary files:
 
@@ -87,9 +89,11 @@ The application will be available at [http://localhost:8000](http://localhost:80
 
 _Requirement: This step requires the [Docker Init](#1-docker-init) step to be completed first._
 
+_CLI reference: [docker buildx bake](https://docs.docker.com/reference/cli/docker/buildx/bake/)_
+
 Docker Bake is to Docker Build, what Docker Compose is to Docker Run. It allows you to build multiple images at once, using a single command.
 
-Docker Bake is available on Docker CE and Docker Desktop, and is generally available.
+Docker Bake is a part of BuildKit, so it's open-source and available on Docker Desktop and Docker CE.
 
 ### Usage
 
@@ -102,10 +106,12 @@ cd flask
 Then, try to build the image using Docker Bake:
 
 ```bash
-docker buildx bake
+docker buildx bake -f docker-bake.hcl
 ```
 
 The command will build the image using the `docker-bake.hcl` file in the current directory. At the end, there is a Docker Desktop link shown in the output, with which you can see the build progress in the Docker Desktop UI.
+
+**Note**. _By default, `docker buildx bake` suffices. In this case, by executing the command without the `-f docker-bake.hcl` flag, the Baker will try to use both the HCL file and the Compose file as an input, and since they have clashing tags, the built image will have empty tag._
 
 Also, there are probably some warnings about the Dockerfile.
 
@@ -122,6 +128,8 @@ _Requirement: This step requires the [Docker Init](#1-docker-init) step to be co
 In Docker Init step, we built an image with tag `flask-server:latest` when running `docker compose up --build`. Let's check the SBOM for this image.
 
 Docker SBOM is integrated into Docker Desktop, but is also available for Docker CE as a CLI plugin that you need to install separately.
+
+**Note**. _Docker engineers want to remove `docker sbom` in favor of `docker scout sbom`, but the command is still available and there is not much attention to it. The `docker sbom` command is just a wrapper around the open-source [syft](https://github.com/anchore/syft) than can be used directly, in case `docker sbom` is removed in the future._
 
 ### Usage
 
@@ -172,10 +180,14 @@ We'll get back to this later.
 
 _Requirement: This step requires the [Docker SBOM](#3-docker-sbom) step to be completed first._
 
-
 _Main article: [DockerDocs: Supply-Chain Security for C++ Images](https://docs.docker.com/guides/cpp/security/)_
 
 SBOM attestations are SBOMs generated for Docker images and uploaded with them to the registry.
+
+In this step, we will use:
+
+- SBOM attestations, that is a feature of BuildKit, to generate SBOMs during the build process (open-source).
+- Docker Scout, to check the vulnerabilities in the image using the SBOM attestations (free tier).
 
 ### Usage
 
@@ -184,6 +196,8 @@ SBOM attestations are generated during the build and pushed to the registry auto
 ```bash
 docker buildx build --sbom=true --push -t aerabi/cpp-hello .
 ```
+
+**Note**. _SBOM attestations are pushed to the registry only as a separate entry linked to the image, so to test them here we need to push the image to a registry. In this example, I used my own Docker Hub account, but you can use any registry that supports SBOM attestations, e.g., GitHub Container Registry, Amazon ECR, etc. Just make sure to change the image name accordingly._
 
 Now, let's check the CVEs with Docker Scout (we will cover it in the next section):
 
@@ -228,6 +242,11 @@ SBOM of image already cached, 208 packages indexed
 ### Exercises
 
 - 4.1. Here, the build command was super long. Try to create a Docker Bake file for the C++ example, and build the image using Docker Bake with SBOM attestations.
+- 4.2. It's possible to check the generated SBOM attestations without using Docker Scout. One way would be writing the SBOM to disk instead of pushing it to the registry:
+    ```bash
+    docker buildx build --sbom=true --sbom-output=type=local,dest=. -t aerabi/cpp-hello:with-build-stage .
+    ```
+  This is especially useful if you want to generate the SBOM, sign it using [cosign](https://github.com/sigstore/cosign), and then only push the signed SBOM to the registry.
 
 ## 5. Docker Scout
 
@@ -263,7 +282,7 @@ _Requirement: This step requires the [Docker SBOM](#3-docker-sbom) step to be co
 
 Docker Debug is a tool to debug Docker images and containers. It allows you to run a container with a debug shell, and inspect the image and the container.
 
-Docker Debug is a paid feature available on Docker Desktop.
+Docker Debug is a paid feature available on Docker Desktop, so feel free to skip this step if you don't have a Pro, Team, or Business subscription.
 
 ### Usage
 
@@ -295,8 +314,6 @@ On Docker CE, you need to install the Docker Model Runner plugin:
 ```bash
 sudo apt-get install docker-model-plugin
 ```
-
-
 
 ### Usage
 
@@ -330,3 +347,40 @@ docker compose up -d
 ### Exercises
 
 - 7.1. Docker Compose now supports the `model` service type ([learn more](https://docs.docker.com/ai/compose/models-and-compose/)). Try to adapt the Compose file in the repo to declare the model as a service.
+
+## 9. Docker MCP Toolkit
+
+Docker MCP Toolkit is a set of tools to manage install MCP servers seamlessly.
+
+### Usage
+
+Open Docker Desktop, go to the "MCP Toolkit" tab. In the servers section, find "GitHub Official" and click the plus button to install it. It will ask for your GitHub token, which you can create in your GitHub account settings.
+
+Then, you can connect to a client. To do that, in the "Clients" section, connect to a client that you're using. Examples are:
+
+- Claude Desktop
+- Cursor
+- Visual Studio Code
+
+For the sake of example, let's connect to Claude Desktop. You can install it in case you don't have it already.
+
+Then, start the MCP toolkit server:
+
+```bash
+docker mcp gateway run
+```
+
+Then, in Claude Desktop, ask questions about your GitHub repositories, e.g., "Explain the Dockerfile in my repository."
+
+![Claude Desktop with MCP Toolkit](claude-desktop.png)
+
+### Exercises
+
+- 9.1. Try to connect to another client, e.g., Cursor or Visual Studio Code.
+- 9.2. Try adding another MCP server, e.g., LinkedIn MCP Server, to ask about your LinkedIn data.
+
+## 10. CAgent
+
+CAgent is introduced a few days ago, and is a multi-agent runtime that orchestrates multiple AI agents to perform complex tasks.
+
+As it's rapidly evolving, please check the [official repo](https://github.com/docker/cagent) for the latest instructions.
