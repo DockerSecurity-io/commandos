@@ -13,6 +13,8 @@ This repository contains the source code and resources for the **10 Docker Comma
 - 9️⃣ [Docker MCP Toolkit](#9-docker-mcp-toolkit)
 - 🔟 [CAgent](#10-cagent)
 
+![Docker Commandos](commandos.png)
+
 ## Installation
 
 Installing the latest Docker Desktop will give you most of the commands. For more details, see the [Pre-Workshop Installation Guide](installation.md).
