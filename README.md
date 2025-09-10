@@ -66,7 +66,7 @@ docker init
 The command will ask you 4 questions, accept the defaults:
 
 - ? What application platform does your project use? **Python**
-- ? What version of Python do you want to use? **3.13.2**
+- ? What version of Python do you want to use? **3.13.7**
 - ? What port do you want your app to listen on? **8000**
 - ? What is the command you use to run your app? **gunicorn 'hello:app' --bind=0.0.0.0:8000**
 
@@ -80,7 +80,7 @@ The application will be available at [http://localhost:8000](http://localhost:80
 
 ### Exercises
 
-- 1.1. If you want a more tricky example, try Dockerizing a Java 24 application using Docker Init. You can follow the instructions in the [JAVAPRO article](https://javapro.io/2025/07/03/how-to-containerize-a-java-application-securely/) that I published last week.
+- 1.1. If you want a more tricky example, try Dockerizing a Java 24 application using Docker Init. You can follow the instructions in the [JAVAPRO article](https://javapro.io/2025/07/03/how-to-containerize-a-java-application-securely/) that I published in July 2025.
 - 1.2. Compare the Dockerfile created for the Java application with the one created for the Python application. What are the differences?
 
 ## 2. Docker Bake
