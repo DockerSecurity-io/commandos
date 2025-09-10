@@ -1,6 +1,6 @@
-# Docker Deep Dive with a Docker Captain at WAP 2025
+# 10 Docker Commandos
 
-This repository contains the source code and resources for the Docker Deep Dive workshop at WAP 2025. The workshop will cover the following topics:
+This repository contains the source code and resources for the **10 Docker Commandos** workshop at JobRad in September 2025. The workshop will cover the following topics:
 
 - Docker Init
 - Docker Bake
@@ -10,6 +10,12 @@ This repository contains the source code and resources for the Docker Deep Dive 
 - Docker Debug
 - Docker Model Runner
 - Ask Gordon
+- Docker's MCP catalog
+- CAgent
+
+## Installation
+
+Installing the latest Docker Desktop will give you most of the commands. For more details, see the [Pre-Workshop Installation Guide](installation.md).
 
 ## Links
 
@@ -30,7 +36,7 @@ On Windows, you can install Git Bash.
 
 _Main article: [Dockerizing a Java 24 Project with Docker Init](https://dockerhour.com/dockerizing-a-java-24-project-with-docker-init-6f6465758c55)_
 
-_Main article: [JAVAPRO: How to Containerize a Java Application Securely](https://javapro.io/2025/07/03/how-to-containerize-a-java-application-securely/)
+_Main article: [JAVAPRO: How to Containerize a Java Application Securely](https://javapro.io/2025/07/03/how-to-containerize-a-java-application-securely/)_
 
 Docker Init is a command to initialize a Docker project with a Dockerfile and other necessary files:
 

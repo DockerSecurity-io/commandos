@@ -1,6 +1,4 @@
 # Stage 1: Build stage
-ARG BUILDKIT_SBOM_SCAN_STAGE=true
-
 FROM ubuntu:latest AS build
 
 # Install build-essential for compiling C++ code
