@@ -246,7 +246,7 @@ SBOM of image already cached, 208 packages indexed
 - 4.1. Here, the build command was super long. Try to create a Docker Bake file for the C++ example, and build the image using Docker Bake with SBOM attestations.
 - 4.2. It's possible to check the generated SBOM attestations without using Docker Scout. One way would be writing the SBOM to disk instead of pushing it to the registry:
     ```bash
-    docker buildx build --sbom=true --sbom-output=type=local,dest=. -t aerabi/cpp-hello:with-build-stage .
+    docker buildx build --sbom=true --output type=local,dest=. -t aerabi/cpp-hello:with-build-stage .
     ```
   This is especially useful if you want to generate the SBOM, sign it using [cosign](https://github.com/sigstore/cosign), and then only push the signed SBOM to the registry.
 
@@ -325,7 +325,7 @@ docker model run ai/gemma3
 
 To use Docker Model Runner for developing GenAI applications, you can pull the models, and they will become available locally. Whenever an application needs to use a model, it can use the local models.
 
-And example application is available here:
+An example application is available here:
 
 ```bash
 git clone https://github.com/aerabi/genai-app-demo
